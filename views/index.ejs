@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="dark">
+    <title>Quiz Modules</title>
+    <link rel="stylesheet" href="/style.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css"
+    />
+    
+  </head>
+  <body>
+    <main class="container">
+    <h1>Available Quiz Modules</h1>
+    <ul>
+      <% for (let module in modules) { %>
+      <li>
+        <h2><%= module %></h2>
+        <ul>
+          <% modules[module].forEach(test => { %>
+          <li>
+            <a href="/quiz/<%= module %>/<%= test %>"><%= test %></a>
+          </li>
+          <% }) %>
+        </ul>
+      </li>
+      <% } %>
+    </ul>
+</main>
+  </body>
+</html>

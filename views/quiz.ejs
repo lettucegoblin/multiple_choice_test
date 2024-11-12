@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="light dark">
+    <title>Quiz</title>
+    
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css"
+    />
+    <link rel="stylesheet" href="/style.css">
+    
+</head>
+<body>
+<header>
+    <nav>
+        <a href="/">Home</a>
+    </nav>
+</header>
+    <h1>Quiz</h1>
+    <form id="quiz-form">
+        <% questions.forEach((question, index) => { %>
+            <div class="question-container" data-question-index="<%= index %>">
+                <h3>Question <%= question.number %>: <%= question.question %></h3>
+                <ul>
+                    <% question.options.forEach(option => { %>
+                        <li>
+                            <label>
+                                <input type="radio" name="question-<%= question.number %>" 
+                                       value="<%= option.letter %>" 
+                                       data-correct="<%= question.correctAnswer === option.letter %>"
+                                       onclick="checkAnswer(this, <%= index %>)">
+                                <%= option.letter %>) <%= option.text %>
+                            </label>
+                        </li>
+                    <% }) %>
+                </ul>
+            </div>
+        <% }) %>
+    </form>
+    <script src="/script.js"></script>
+</body>
+</html>

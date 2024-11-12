@@ -1,0 +1,39 @@
+
+
+h1 {
+  text-align: center;
+}
+
+.question-container {
+  margin-bottom: 20px;
+}
+
+.question-container h3 {
+  margin-bottom: 10px;
+}
+
+#quiz-form{
+  margin: 4em;
+}
+label {
+  display: block;
+  margin: 5px 0;
+}
+
+input[type="radio"] {
+  margin-right: 10px;
+}
+
+ul {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+ul li {
+  list-style: none;
+}
+
+nav {
+  margin: 0em 1em;
+}
