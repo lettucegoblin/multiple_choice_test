@@ -51,10 +51,13 @@ app.get("/quiz/:module/:test", (req, res) => {
 
     // Split content into individual questions using "---"
     const questions = content.map((section, index) => {
+
+      
       // Extract the question and answers
       const questionMatch = section.match(/\*\*Q:\s(.+?)\*\*/);
       const optionsMatch = Array.from(section.matchAll(/- ([A-D])\) (.+)/g));
       const answerMatch = section.match(/\*\*Answer:\*\*\s([A-D])/);
+
 
       const options = optionsMatch.map(([_, letter, text]) => ({
         letter,

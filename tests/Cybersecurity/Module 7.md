@@ -190,8 +190,6 @@
 
 ---  
 
----
-
 **Q: What is the `-sV` option used for in Nmap?**  
 - A) To perform a basic ping sweep of the target network.  
 - B) To determine the version of services running on open ports.  

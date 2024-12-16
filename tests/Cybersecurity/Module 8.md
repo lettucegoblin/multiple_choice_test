@@ -270,8 +270,6 @@
 
 ---
 
----
-
 **Q: What is a major advantage of using firewalls with deep packet inspection (DPI)?**  
 - A) They are more affordable than traditional firewalls.  
 - B) They can inspect and filter packet content at all protocol layers.  
