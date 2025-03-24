@@ -556,7 +556,27 @@
 - C) MySQL and MongoDB
 - D) Hive and Pig
 
-**Answer:** A
+**Answer:** B
+
+---
+
+**Q: Describe the MapReduce programming model and explain how it processes large datasets.**
+
+**SHORT ANSWER:** MapReduce is a programming model designed for processing large datasets in parallel across a distributed cluster. It consists of two primary phases:
+
+1. Map phase: Input data is divided into chunks and processed in parallel by map tasks. Each mapper transforms input records into intermediate key-value pairs. This phase handles the "divide" part of divide-and-conquer, allowing independent processing of data chunks.
+
+2. Reduce phase: The intermediate results from mappers are grouped by keys, and each group is processed by a reducer that aggregates or summarizes the values associated with each key to produce the final output.
+
+Between these phases, a "shuffle and sort" step occurs where the system sorts and transfers the intermediate key-value pairs from mappers to the appropriate reducers.
+
+MapReduce enables processing of massive datasets by:
+- Distributing computation across many nodes
+- Moving computation to where data resides to minimize network traffic
+- Handling fault tolerance automatically by rerunning failed tasks
+- Providing a simple programming model that abstracts away the complexities of distributed processing
+
+This model is particularly effective for problems that can be decomposed into independent sub-tasks and later combined, such as counting, filtering, aggregation, and joining of large datasets.
 
 ---
 
@@ -680,6 +700,36 @@
 
 ---
 
+**Q: What is the default block size in HDFS?**
+- A) 4MB
+- B) 16MB
+- C) 64MB
+- D) 128MB
+
+**Answer:** C
+
+---
+
+**Q: Explain why HDFS uses large block sizes and how this design decision impacts performance and scalability.**
+
+**SHORT ANSWER:** HDFS uses large block sizes (traditionally 64MB, now often 128MB or 256MB) for several important reasons:
+
+1. Reduced metadata overhead: With larger blocks, there are fewer total blocks to track, which means the NameNode needs to store less metadata in memory.
+
+2. Reduced network overhead: Larger blocks minimize the number of connections and setup/teardown operations required when accessing data.
+
+3. Optimization for sequential access: HDFS is designed for batch processing and sequential reads of large files. Larger blocks allow for longer continuous reads without the overhead of moving to a new block.
+
+4. Amortization of disk seek time: The time spent seeking to a new disk location is amortized over a larger amount of data read.
+
+5. MapReduce efficiency: The MapReduce framework typically assigns one map task per block, so larger blocks mean fewer map tasks and reduced task initialization overhead.
+
+However, this large block size makes HDFS less efficient for small files or random access patterns. If files are much smaller than a block size, storage space is wasted and the system still needs to track many small files, creating "small file problem" scenarios.
+
+The large block size design decision directly supports Hadoop's goal of high throughput over low latency, and enables it to scale to petabytes of data across thousands of nodes.
+
+---
+
 **Q: In Hadoop, "rack awareness" refers to:**
 - A) Physical organization of server racks
 - B) A strategy to optimize network traffic by considering the physical network topology
@@ -687,6 +737,40 @@
 - D) A security protocol for rack-based access
 
 **Answer:** B
+
+---
+
+**Q: How does Hadoop handle node failures during job execution?**
+- A) It restarts the entire job from the beginning
+- B) It re-executes only the failed tasks
+- C) It skips the failed tasks and continues with remaining tasks
+- D) It attempts to recover the intermediate data from failed nodes
+
+**Answer:** B
+
+---
+
+**Q: Explain Hadoop's approach to fault tolerance and why it's critical for big data processing.**
+
+**SHORT ANSWER:** Hadoop's fault tolerance is built on several key mechanisms that allow it to reliably process massive datasets on commodity hardware where failures are expected:
+
+1. Data replication: HDFS replicates data blocks across multiple machines (typically 3 copies) using a rack-aware placement policy. This ensures data is available even if nodes or disks fail.
+
+2. Heartbeat messages: DataNodes and TaskTrackers send regular heartbeats to the NameNode and JobTracker respectively. When a node stops sending heartbeats, it's marked as failed.
+
+3. Task-level recovery: If a map or reduce task fails, the system automatically reschedules it on another healthy node. Only the failed task is re-executed, not the entire job.
+
+4. Speculative execution: For stragglers (tasks running significantly slower than others), Hadoop can launch backup executions of the same task on different nodes and use the result from whichever finishes first.
+
+5. Job restart capability: If the JobTracker/ResourceManager fails, jobs can be restarted from the beginning or from saved checkpoints.
+
+This fault tolerance is critical for big data processing because:
+- Large-scale clusters (thousands of nodes) will inevitably experience hardware failures
+- Long-running jobs would be impractical if they had to restart completely after any failure
+- It enables the use of cheaper commodity hardware rather than expensive fault-resistant systems
+- It removes the burden of handling failures from application developers
+
+This approach allows Hadoop to provide reliable results even in the presence of infrastructure failures, which is essential when processing datasets at petabyte scale.
 
 ---
 
