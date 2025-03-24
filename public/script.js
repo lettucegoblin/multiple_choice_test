@@ -43,6 +43,30 @@ function startLoadingAnimation(element) {
   return loadingInterval;
 }
 
+// Function to display the model answer
+function showModelAnswer(questionNumber, questionIndex) {
+  const modelAnswer = document.getElementById(`model-answer-${questionNumber}`).value;
+  const modelAnswerDisplay = document.getElementById(`model-answer-display-${questionIndex}`);
+  const showAnswerBtn = document.getElementById(`show-answer-btn-${questionNumber}`);
+  
+  // Toggle display of the model answer
+  if (modelAnswerDisplay.innerHTML === '') {
+    // Render model answer with markdown
+    const htmlModelAnswer = marked.parse(modelAnswer);
+    
+    modelAnswerDisplay.innerHTML = `
+      <div class="model-answer-box">
+        <h4>Textbook Answer</h4>
+        <div class="model-answer-content">${htmlModelAnswer}</div>
+      </div>
+    `;
+    showAnswerBtn.textContent = 'Hide Answer';
+  } else {
+    modelAnswerDisplay.innerHTML = '';
+    showAnswerBtn.textContent = 'Show Answer';
+  }
+}
+
 async function evaluateShortAnswer(questionNumber, questionIndex) {
   const userAnswer = document.getElementById(`short-answer-${questionNumber}`).value.trim();
   const questionElement = document.querySelector(`.question-container[data-question-index="${questionIndex}"] h3`);

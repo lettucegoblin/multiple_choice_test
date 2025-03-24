@@ -28,17 +28,57 @@ header {
   background-color: rgba(255, 255, 255, 0.03);
 }
 
-.submit-button {
-  align-self: flex-start;
+/* Button group styling */
+.button-group {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.submit-button, .show-answer-button {
   padding: 8px 16px;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
+  flex: 0 0 auto;
+}
+
+.show-answer-button {
+  background-color: rgba(0, 0, 0, 0.2);
+  color: inherit;
+  border: 1px solid rgba(125, 125, 125, 0.4);
+}
+
+.show-answer-button:hover {
+  background-color: rgba(0, 0, 0, 0.3);
 }
 
 .feedback-container {
   margin-top: 1rem;
   width: 100%;
+}
+
+/* Model answer styling */
+.model-answer-container {
+  margin-top: 1rem;
+  width: 100%;
+}
+
+.model-answer-box {
+  padding: 16px;
+  border-radius: 8px;
+  background-color: rgba(50, 205, 50, 0.1);
+  border-left: 4px solid rgba(50, 205, 50, 0.7);
+}
+
+.model-answer-box h4 {
+  margin-top: 0;
+  margin-bottom: 8px;
+  color: rgba(50, 205, 50, 0.9);
+}
+
+.model-answer-content {
+  line-height: 1.6;
 }
 
 .feedback-box {
@@ -61,24 +101,31 @@ header {
 /* Styling for markdown-rendered elements */
 .feedback-content h1, 
 .feedback-content h2, 
-.feedback-content h3 {
+.feedback-content h3,
+.model-answer-content h1,
+.model-answer-content h2,
+.model-answer-content h3 {
   margin-top: 0.8em;
   margin-bottom: 0.5em;
 }
 
-.feedback-content h1 {
+.feedback-content h1,
+.model-answer-content h1 {
   font-size: 1.5em;
 }
 
-.feedback-content h2 {
+.feedback-content h2,
+.model-answer-content h2 {
   font-size: 1.3em;
 }
 
-.feedback-content h3 {
+.feedback-content h3,
+.model-answer-content h3 {
   font-size: 1.1em;
 }
 
-.feedback-content code {
+.feedback-content code,
+.model-answer-content code {
   font-family: monospace;
   background-color: rgba(0, 0, 0, 0.1);
   padding: 2px 4px;
@@ -86,7 +133,8 @@ header {
   font-size: 0.9em;
 }
 
-.feedback-content pre {
+.feedback-content pre,
+.model-answer-content pre {
   background-color: rgba(0, 0, 0, 0.1);
   padding: 10px;
   border-radius: 5px;
@@ -94,27 +142,33 @@ header {
   margin: 10px 0;
 }
 
-.feedback-content pre code {
+.feedback-content pre code,
+.model-answer-content pre code {
   background-color: transparent;
   padding: 0;
 }
 
 .feedback-content ul, 
-.feedback-content ol {
+.feedback-content ol,
+.model-answer-content ul,
+.model-answer-content ol {
   padding-left: 20px;
   margin: 10px 0;
 }
 
-.feedback-content li {
+.feedback-content li,
+.model-answer-content li {
   margin-bottom: 5px;
 }
 
-.feedback-content p {
+.feedback-content p,
+.model-answer-content p {
   margin-bottom: 1em;
 }
 
-.feedback-content blockquote {
-  border-left: 3px solid rgba(0, 100, 255, 0.5);
+.feedback-content blockquote,
+.model-answer-content blockquote {
+  border-left: 3px solid rgba(125, 125, 125, 0.5);
   padding-left: 15px;
   margin-left: 0;
   color: rgba(255, 255, 255, 0.8);
