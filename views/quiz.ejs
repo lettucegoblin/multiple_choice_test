@@ -19,35 +19,69 @@
         <a href="/">Home</a>
       </nav>
     </header>
-    <h1>Quiz</h1>
-    <form id="quiz-form">
-      <% questions.forEach((question, index) => { %>
-      <div class="question-container" data-question-index="<%= index %>">
-        <h3>Question <%= question.number %>: <%= question.question %></h3>
-        <ul>
-          <% question.options.forEach(option => { %>
-          <li>
-            <label>
-              <input
-                type="radio"
-                name="question-<%= question.number %>"
-                value="<%= option.letter %>"
-                data-correct="<%= question.correctAnswer === option.letter %>"
-                onclick="checkAnswer(this, <%= index %>)"
+    <main class="container">
+      <h1>Quiz</h1>
+      <form id="quiz-form">
+        <% questions.forEach((question, index) => { %>
+        <div class="question-container" data-question-index="<%= index %>">
+          <h3>Question <%= question.number %>: <%= question.question %></h3>
+          
+          <% if (question.type === "multiple") { %>
+            <!-- Multiple choice question -->
+            <ul>
+              <% question.options.forEach(option => { %>
+              <li>
+                <label>
+                  <input
+                    type="radio"
+                    name="question-<%= question.number %>"
+                    value="<%= option.letter %>"
+                    data-correct="<%= question.correctAnswer === option.letter %>"
+                    onclick="checkAnswer(this, <%= index %>)"
+                  />
+                  <%= option.letter %>) <%= option.text %>
+                </label>
+              </li>
+              <% }) %>
+            </ul>
+          <% } else if (question.type === "short") { %>
+            <!-- Short answer question -->
+            <div class="short-answer-section">
+              <textarea 
+                id="short-answer-<%= question.number %>" 
+                class="short-answer-input" 
+                rows="5" 
+                placeholder="Type your answer here..."></textarea>
+              
+              <!-- Hidden field to store the model answer -->
+              <input 
+                type="hidden" 
+                id="model-answer-<%= question.number %>" 
+                value="<%= question.modelAnswer %>" 
               />
-              <%= option.letter %>) <%= option.text %>
-            </label>
-          </li>
-          <% }) %>
-        </ul>
-      </div>
-      <% }) %>
-    </form>
-    <header>
+              
+              <button 
+                type="button" 
+                id="submit-btn-<%= question.number %>"
+                class="submit-button" 
+                onclick="evaluateShortAnswer(<%= question.number %>, <%= index %>)">
+                Submit Answer
+              </button>
+              
+              <div id="feedback-<%= index %>" class="feedback-container"></div>
+            </div>
+          <% } %>
+        </div>
+        <% }) %>
+      </form>
+    </main>
+    <footer>
       <nav>
         <a href="/">Home</a>
       </nav>
-    </header>
+    </footer>
+    <!-- Include marked.js for markdown rendering -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="/script.js"></script>
   </body>
 </html>

@@ -1,4 +1,141 @@
-header{
+header {
   display: flex;
   justify-content: center;
+}
+
+.question-container {
+  margin-bottom: 2.5rem;
+  padding: 1.5rem;
+  border-radius: 8px;
+  background-color: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.short-answer-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.short-answer-input {
+  width: 100%;
+  padding: 12px;
+  font-family: inherit;
+  resize: vertical;
+  min-height: 120px;
+  border-radius: 4px;
+  border: 1px solid rgba(125, 125, 125, 0.3);
+  background-color: rgba(255, 255, 255, 0.03);
+}
+
+.submit-button {
+  align-self: flex-start;
+  padding: 8px 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.feedback-container {
+  margin-top: 1rem;
+  width: 100%;
+}
+
+.feedback-box {
+  padding: 16px;
+  border-radius: 8px;
+  background-color: rgba(0, 100, 255, 0.1);
+  border-left: 4px solid rgba(0, 100, 255, 0.7);
+}
+
+.feedback-box h4 {
+  margin-top: 0;
+  margin-bottom: 8px;
+  color: rgba(0, 100, 255, 0.9);
+}
+
+.feedback-content {
+  line-height: 1.6;
+}
+
+/* Styling for markdown-rendered elements */
+.feedback-content h1, 
+.feedback-content h2, 
+.feedback-content h3 {
+  margin-top: 0.8em;
+  margin-bottom: 0.5em;
+}
+
+.feedback-content h1 {
+  font-size: 1.5em;
+}
+
+.feedback-content h2 {
+  font-size: 1.3em;
+}
+
+.feedback-content h3 {
+  font-size: 1.1em;
+}
+
+.feedback-content code {
+  font-family: monospace;
+  background-color: rgba(0, 0, 0, 0.1);
+  padding: 2px 4px;
+  border-radius: 3px;
+  font-size: 0.9em;
+}
+
+.feedback-content pre {
+  background-color: rgba(0, 0, 0, 0.1);
+  padding: 10px;
+  border-radius: 5px;
+  overflow: auto;
+  margin: 10px 0;
+}
+
+.feedback-content pre code {
+  background-color: transparent;
+  padding: 0;
+}
+
+.feedback-content ul, 
+.feedback-content ol {
+  padding-left: 20px;
+  margin: 10px 0;
+}
+
+.feedback-content li {
+  margin-bottom: 5px;
+}
+
+.feedback-content p {
+  margin-bottom: 1em;
+}
+
+.feedback-content blockquote {
+  border-left: 3px solid rgba(0, 100, 255, 0.5);
+  padding-left: 15px;
+  margin-left: 0;
+  color: rgba(255, 255, 255, 0.8);
+  font-style: italic;
+}
+
+.feedback-loading {
+  padding: 12px;
+  color: #888;
+  font-style: italic;
+  min-height: 40px;
+}
+
+.feedback-error {
+  padding: 12px;
+  color: #e74c3c;
+  background-color: rgba(231, 76, 60, 0.1);
+  border-radius: 4px;
+}
+
+footer {
+  margin-top: 2rem;
+  text-align: center;
 }
