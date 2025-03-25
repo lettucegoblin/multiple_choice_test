@@ -44,13 +44,20 @@
               </li>
               <% }) %>
             </ul>
- <button 
-                  type="button" 
-                  id="explain-btn-<%= question.number %>"
-                  class="explain-button" 
-                  onclick="explainConcept(<%= question.number %>, <%= index %>)">
-                  Explain
-                </button>
+            
+            <!-- Add explain button for multiple choice questions -->
+            <div class="button-group">
+              <button 
+                type="button" 
+                id="explain-btn-<%= question.number %>"
+                class="explain-button" 
+                onclick="explainConcept(<%= question.number %>, <%= index %>, 'multiple')">
+                Explain
+              </button>
+            </div>
+            
+            <div id="explanation-display-<%= index %>" class="explanation-container"></div>
+            
           <% } else if (question.type === "short") { %>
             <!-- Short answer question -->
             <div class="short-answer-section">
@@ -83,11 +90,12 @@
                   onclick="showModelAnswer(<%= question.number %>, <%= index %>)">
                   Show Answer
                 </button>
-                 <button 
+                
+                <button 
                   type="button" 
                   id="explain-btn-<%= question.number %>"
                   class="explain-button" 
-                  onclick="explainConcept(<%= question.number %>, <%= index %>)">
+                  onclick="explainConcept(<%= question.number %>, <%= index %>, 'short')">
                   Explain
                 </button>
               </div>
