@@ -44,6 +44,13 @@
               </li>
               <% }) %>
             </ul>
+ <button 
+                  type="button" 
+                  id="explain-btn-<%= question.number %>"
+                  class="explain-button" 
+                  onclick="explainConcept(<%= question.number %>, <%= index %>)">
+                  Explain
+                </button>
           <% } else if (question.type === "short") { %>
             <!-- Short answer question -->
             <div class="short-answer-section">
@@ -76,8 +83,7 @@
                   onclick="showModelAnswer(<%= question.number %>, <%= index %>)">
                   Show Answer
                 </button>
-                
-                <button 
+                 <button 
                   type="button" 
                   id="explain-btn-<%= question.number %>"
                   class="explain-button" 
