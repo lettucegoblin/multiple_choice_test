@@ -236,3 +236,39 @@ footer {
   margin-top: 2rem;
   text-align: center;
 }
+
+/* Read Aloud Button Styling */
+.read-aloud-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 12px;
+  margin: 8px 0;
+  background-color: rgba(70, 70, 70, 0.2);
+  border: 1px solid rgba(125, 125, 125, 0.3);
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+  color: inherit;
+}
+
+.read-aloud-btn:hover {
+  background-color: rgba(80, 80, 80, 0.3);
+}
+
+.read-aloud-btn.speaking {
+  background-color: rgba(255, 70, 70, 0.2);
+  border: 1px solid rgba(255, 70, 70, 0.4);
+}
+
+.read-aloud-btn .read-icon {
+  margin-right: 6px;
+  font-style: normal;
+}
+
+/* Ensure proper spacing in feedback boxes with read aloud button */
+.feedback-box h4, .model-answer-box h4, .explanation-box h4 {
+  display: inline-block;
+  margin-right: 10px;
+}

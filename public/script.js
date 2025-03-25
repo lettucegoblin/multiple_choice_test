@@ -63,31 +63,7 @@ function getOptionsForQuestion(questionIndex) {
   return options;
 }
 
-// Function to display the model answer
-function showModelAnswer(questionNumber, questionIndex) {
-  const modelAnswer = document.getElementById(`model-answer-${questionNumber}`).value;
-  const modelAnswerDisplay = document.getElementById(`model-answer-display-${questionIndex}`);
-  const showAnswerBtn = document.getElementById(`show-answer-btn-${questionNumber}`);
-  
-  // Toggle display of the model answer
-  if (modelAnswerDisplay.innerHTML === '') {
-    // Render model answer with markdown
-    const htmlModelAnswer = marked.parse(modelAnswer);
-    
-    modelAnswerDisplay.innerHTML = `
-      <div class="model-answer-box">
-        <h4>Textbook Answer</h4>
-        <div class="model-answer-content">${htmlModelAnswer}</div>
-      </div>
-    `;
-    showAnswerBtn.textContent = 'Hide Answer';
-  } else {
-    modelAnswerDisplay.innerHTML = '';
-    showAnswerBtn.textContent = 'Show Answer';
-  }
-}
-
-// Function to explain the concept with streaming
+// Modified explainConcept function to include read aloud button
 async function explainConcept(questionNumber, questionIndex, questionType) {
   const questionElement = document.querySelector(`.question-container[data-question-index="${questionIndex}"] h3`);
   const question = questionElement.textContent.replace(`Question ${questionNumber}: `, '');
@@ -116,14 +92,6 @@ async function explainConcept(questionNumber, questionIndex, questionType) {
   const explanationContent = explanationDisplay.querySelector('.explanation-content');
   
   try {
-    // Prepare request data based on question type
-    const requestData = { question };
-    
-    // If it's a multiple choice question, include the options
-    if (questionType === 'multiple') {
-      requestData.options = getOptionsForQuestion(questionIndex);
-    }
-    
     // Create event source for streaming
     const eventSource = new EventSource('/explain-concept-stream?' + new URLSearchParams({
       question: question,
@@ -131,7 +99,6 @@ async function explainConcept(questionNumber, questionIndex, questionType) {
     }));
     
     let markdown = '';
-    let renderer = new marked.Renderer();
     
     // Handle incoming data
     eventSource.onmessage = function(event) {
@@ -139,6 +106,9 @@ async function explainConcept(questionNumber, questionIndex, questionType) {
         eventSource.close();
         explainButton.disabled = false;
         explainButton.textContent = 'Hide Explanation';
+        
+        // Add read aloud button after content is fully loaded
+        addReadAloudToExplanation(explanationDisplay);
         return;
       }
       
@@ -150,6 +120,11 @@ async function explainConcept(questionNumber, questionIndex, questionType) {
           
           // Scroll to the bottom of the content
           explanationContent.scrollTop = explanationContent.scrollHeight;
+        } else if (data.error) {
+          explanationDisplay.innerHTML = `<div class="feedback-error">${data.error}</div>`;
+          explainButton.textContent = 'Explain';
+          explainButton.disabled = false;
+          eventSource.close();
         }
       } catch (e) {
         console.error('Error parsing streaming data:', e);
@@ -173,6 +148,7 @@ async function explainConcept(questionNumber, questionIndex, questionType) {
   }
 }
 
+// Modified evaluateShortAnswer function to include read aloud button
 async function evaluateShortAnswer(questionNumber, questionIndex) {
   const userAnswer = document.getElementById(`short-answer-${questionNumber}`).value.trim();
   const questionElement = document.querySelector(`.question-container[data-question-index="${questionIndex}"] h3`);
@@ -216,6 +192,9 @@ async function evaluateShortAnswer(questionNumber, questionIndex) {
         eventSource.close();
         submitButton.disabled = false;
         submitButton.textContent = 'Submit Answer';
+        
+        // Add read aloud button after content is fully loaded
+        addReadAloudToFeedback(feedbackContainer);
         return;
       }
       
@@ -250,5 +229,33 @@ async function evaluateShortAnswer(questionNumber, questionIndex) {
     feedbackContainer.innerHTML = '<div class="feedback-error">Failed to evaluate answer. Please try again later.</div>';
     submitButton.disabled = false;
     submitButton.textContent = 'Submit Answer';
+  }
+}
+
+// Modified showModelAnswer function to include read aloud button
+function showModelAnswer(questionNumber, questionIndex) {
+  const modelAnswer = document.getElementById(`model-answer-${questionNumber}`).value;
+  const modelAnswerDisplay = document.getElementById(`model-answer-display-${questionIndex}`);
+  const showAnswerBtn = document.getElementById(`show-answer-btn-${questionNumber}`);
+  
+  // Toggle display of the model answer
+  if (modelAnswerDisplay.innerHTML === '') {
+    // Render model answer with markdown
+    const htmlModelAnswer = marked.parse(modelAnswer);
+    
+    modelAnswerDisplay.innerHTML = `
+      <div class="model-answer-box">
+        <h4>Textbook Answer</h4>
+        <div class="model-answer-content">${htmlModelAnswer}</div>
+      </div>
+    `;
+    
+    // Add read aloud button
+    addReadAloudToModelAnswer(modelAnswerDisplay);
+    
+    showAnswerBtn.textContent = 'Hide Answer';
+  } else {
+    modelAnswerDisplay.innerHTML = '';
+    showAnswerBtn.textContent = 'Show Answer';
   }
 }
