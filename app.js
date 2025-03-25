@@ -155,10 +155,23 @@ app.post("/evaluate-answer", async (req, res) => {
   }
 });
 
-// New endpoint to explain the concept
+// Endpoint to explain the concept
 app.post("/explain-concept", async (req, res) => {
   try {
-    const { question } = req.body;
+    const { question, options } = req.body;
+    
+    // Build content based on whether options are provided (multiple choice) or not
+    let content = `I need an explanation of the following concept from my class:\n\n${question}`;
+    
+    // If options are provided (for multiple choice), include them
+    if (options && options.length > 0) {
+      content += "\n\nThe question includes these options:";
+      options.forEach(option => {
+        content += `\n${option.letter}) ${option.text}`;
+      });
+    }
+    
+    content += "\n\nPlease explain this concept in detail, including key points, examples, and any relevant background information. Format your response with appropriate headings and structure for clarity.";
     
     // Call the Open WebUI API endpoint for explanation
     const response = await axios.post(process.env.ENDPOINT, {
@@ -170,7 +183,7 @@ app.post("/explain-concept", async (req, res) => {
         },
         {
           role: "user",
-          content: `I need an explanation of the following concept from my class:\n\n${question}\n\nPlease explain this concept in detail, including key points, examples, and any relevant background information. Format your response with appropriate headings and structure for clarity.`
+          content: content
         }
       ]
     }, {

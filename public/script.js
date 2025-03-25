@@ -43,6 +43,26 @@ function startLoadingAnimation(element, text = "Evaluating your answer") {
   return loadingInterval;
 }
 
+// Function to get all options for a multiple choice question
+function getOptionsForQuestion(questionIndex) {
+  const questionContainer = document.querySelector(`.question-container[data-question-index="${questionIndex}"]`);
+  const options = [];
+  
+  // Get all labels from the radio buttons
+  questionContainer.querySelectorAll('label').forEach(label => {
+    const text = label.textContent.trim();
+    const letter = text.charAt(0);
+    const optionText = text.substring(3).trim(); // Skip the "X) " prefix
+    
+    options.push({
+      letter: letter,
+      text: optionText
+    });
+  });
+  
+  return options;
+}
+
 // Function to display the model answer
 function showModelAnswer(questionNumber, questionIndex) {
   const modelAnswer = document.getElementById(`model-answer-${questionNumber}`).value;
@@ -68,7 +88,7 @@ function showModelAnswer(questionNumber, questionIndex) {
 }
 
 // Function to explain the concept
-async function explainConcept(questionNumber, questionIndex) {
+async function explainConcept(questionNumber, questionIndex, questionType) {
   const questionElement = document.querySelector(`.question-container[data-question-index="${questionIndex}"] h3`);
   const question = questionElement.textContent.replace(`Question ${questionNumber}: `, '');
   const explanationDisplay = document.getElementById(`explanation-display-${questionIndex}`);
@@ -89,14 +109,20 @@ async function explainConcept(questionNumber, questionIndex) {
   const loadingInterval = startLoadingAnimation(explanationDisplay, "Generating explanation");
   
   try {
+    // Prepare request data based on question type
+    const requestData = { question };
+    
+    // If it's a multiple choice question, include the options
+    if (questionType === 'multiple') {
+      requestData.options = getOptionsForQuestion(questionIndex);
+    }
+    
     const response = await fetch('/explain-concept', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        question
-      })
+      body: JSON.stringify(requestData)
     });
     
     const data = await response.json();
