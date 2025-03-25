@@ -30,9 +30,9 @@ marked.setOptions({
 });
 
 // Loading animation for the evaluation process
-function startLoadingAnimation(element) {
+function startLoadingAnimation(element, text = "Evaluating your answer") {
   let dots = 0;
-  const loadingText = "Evaluating your answer";
+  const loadingText = text;
   
   const loadingInterval = setInterval(() => {
     dots = (dots + 1) % 4;
@@ -64,6 +64,71 @@ function showModelAnswer(questionNumber, questionIndex) {
   } else {
     modelAnswerDisplay.innerHTML = '';
     showAnswerBtn.textContent = 'Show Answer';
+  }
+}
+
+// Function to explain the concept
+async function explainConcept(questionNumber, questionIndex) {
+  const questionElement = document.querySelector(`.question-container[data-question-index="${questionIndex}"] h3`);
+  const question = questionElement.textContent.replace(`Question ${questionNumber}: `, '');
+  const explanationDisplay = document.getElementById(`explanation-display-${questionIndex}`);
+  const explainButton = document.getElementById(`explain-btn-${questionNumber}`);
+  
+  // If explanation is already shown, toggle it off
+  if (explanationDisplay.innerHTML.includes('explanation-box')) {
+    explanationDisplay.innerHTML = '';
+    explainButton.textContent = 'Explain';
+    return;
+  }
+  
+  // Show loading state
+  explainButton.disabled = true;
+  explainButton.textContent = 'Generating...';
+  
+  // Start the loading animation
+  const loadingInterval = startLoadingAnimation(explanationDisplay, "Generating explanation");
+  
+  try {
+    const response = await fetch('/explain-concept', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        question
+      })
+    });
+    
+    const data = await response.json();
+    
+    // Clear the loading animation
+    clearInterval(loadingInterval);
+    
+    if (data.success) {
+      // Use marked.js to render markdown
+      const htmlExplanation = marked.parse(data.explanation);
+      
+      explanationDisplay.innerHTML = `
+        <div class="explanation-box">
+          <h4>Concept Explanation</h4>
+          <div class="explanation-content">${htmlExplanation}</div>
+        </div>
+      `;
+      explainButton.textContent = 'Hide Explanation';
+    } else {
+      explanationDisplay.innerHTML = `<div class="feedback-error">${data.explanation}</div>`;
+      explainButton.textContent = 'Explain';
+    }
+  } catch (error) {
+    // Clear the loading animation
+    clearInterval(loadingInterval);
+    
+    console.error('Error getting explanation:', error);
+    explanationDisplay.innerHTML = '<div class="feedback-error">Failed to generate explanation. Please try again later.</div>';
+    explainButton.textContent = 'Explain';
+  } finally {
+    // Restore button state
+    explainButton.disabled = false;
   }
 }
 
