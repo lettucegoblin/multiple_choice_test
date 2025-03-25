@@ -129,7 +129,7 @@ app.post("/evaluate-answer", async (req, res) => {
         },
         {
           role: "user",
-          content: `Question: ${question}\n\nTextbook Answer: ${modelAnswer}\n\nStudent Answer: ${userAnswer}\n\nPlease evaluate the student's answer compared to the textbook answer. Provide specific feedback on what was correct and what could be improved. Be educational and constructive.`
+          content: `Question: "${question}"\n\nTextbook Answer: "${modelAnswer}"\n\nStudent Answer: "${userAnswer}"\n\nPlease evaluate the student's answer compared to the textbook answer. Provide specific feedback on what was correct and what could be improved. Be educational and constructive.`
         }
       ]
     }, {
@@ -381,11 +381,11 @@ app.get('/evaluate-answer-stream', async (req, res) => {
       messages: [
         {
           role: "system", 
-          content: "You are an educational assessment AI. Keep your answer succinct. Your job is to evaluate student answers to questions and provide helpful feedback. Be constructive and encouraging."
+          content: "You are an educational assessment AI. Your job is to evaluate student answers to questions and provide helpful feedback. Be constructive and encouraging."
         },
         {
           role: "user",
-          content: `Question: ${question}\n\nTextbook Answer: ${modelAnswer}\n\nStudent Answer: ${userAnswer}\n\nPlease evaluate the student's answer compared to the textbook answer. Provide specific feedback on what was correct and what could be improved. Be educational and constructive.`
+          content: `Question: "${question}"\n\nTextbook Answer: "${modelAnswer}"\n\nStudent Answer: "${userAnswer}"\n\nPlease evaluate the student's answer compared to the textbook answer. Provide specific feedback on what was correct and what could be improved. Be educational and constructive.`
         }
       ],
       stream: true,
@@ -449,6 +449,119 @@ app.get('/evaluate-answer-stream', async (req, res) => {
   } catch (error) {
     console.error('Error in evaluate-answer-stream:', error);
     res.write(`data: ${JSON.stringify({ error: 'Failed to evaluate answer' })}\n\n`);
+    res.end();
+  }
+});
+
+// Add this route to your app.js for succinct explanations
+app.get('/explain-succinct-stream', async (req, res) => {
+  try {
+    const { question, options } = req.query;
+    let parsedOptions = [];
+    
+    // Parse options if provided
+    if (options) {
+      try {
+        parsedOptions = JSON.parse(options);
+      } catch (e) {
+        console.error('Error parsing options:', e);
+      }
+    }
+    
+    // Build content based on whether options are provided (multiple choice) or not
+    let content = `I need a brief, succinct explanation of this concept:\n\n${question}`;
+    
+    // If options are provided (for multiple choice), include them
+    if (parsedOptions && parsedOptions.length > 0) {
+      content += "\n\nThe question includes these options:";
+      parsedOptions.forEach(option => {
+        content += `\n${option.letter}) ${option.text}`;
+      });
+    }
+    
+    content += "\n\nProvide a concise explanation of this concept using no more than 3-4 sentences. Focus only on the core principles.";
+    
+    // Set headers for server-sent events
+    res.writeHead(200, {
+      'Content-Type': 'text/event-stream',
+      'Cache-Control': 'no-cache',
+      'Connection': 'keep-alive',
+    });
+    
+    // Make the API call with streaming enabled
+    const response = await axios.post(process.env.ENDPOINT, {
+      model: process.env.MODEL,
+      messages: [
+        {
+          role: "system", 
+          content: "You are an educational AI tutor. Your task is to explain concepts clearly but extremely succinctly. Keep explanations short and to the point."
+        },
+        {
+          role: "user",
+          content: content
+        }
+      ],
+      stream: true,
+      options: {}
+    }, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${process.env.API_KEY}`
+      },
+      responseType: 'stream'
+    });
+    
+    // Process the streaming response
+    response.data.on('data', (chunk) => {
+      try {
+        const lines = chunk.toString().split('\n');
+        
+        for (const line of lines) {
+          if (line.startsWith('data: ') && line !== 'data: [DONE]') {
+            try {
+              // Extract the content from the stream
+              const jsonData = JSON.parse(line.substring(6));
+              if (jsonData.choices && jsonData.choices[0].delta && jsonData.choices[0].delta.content) {
+                const content = jsonData.choices[0].delta.content;
+                
+                // Send the chunk to the client
+                res.write(`data: ${JSON.stringify({ chunk: content })}\n\n`);
+              }
+            } catch (parseError) {
+              console.error('Error parsing JSON:', parseError);
+            }
+          } else if (line === 'data: [DONE]') {
+            res.write('data: [DONE]\n\n');
+          }
+        }
+      } catch (error) {
+        console.error('Error processing stream chunk:', error);
+      }
+    });
+    
+    response.data.on('end', () => {
+      res.write('data: [DONE]\n\n');
+      res.end();
+    });
+    
+    response.data.on('error', (err) => {
+      console.error('Stream error:', err);
+      res.write(`data: ${JSON.stringify({ error: 'Stream error occurred' })}\n\n`);
+      res.end();
+    });
+    
+    // Handle client disconnect
+    req.on('close', () => {
+      try {
+        response.data.destroy();
+      } catch (e) {
+        console.error('Error closing stream:', e);
+      }
+    });
+    
+  } catch (error) {
+    console.error('Error in explain-succinct-stream:', error);
+    res.write(`data: ${JSON.stringify({ error: 'Failed to generate succinct explanation' })}\n\n`);
     res.end();
   }
 });

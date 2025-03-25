@@ -54,6 +54,13 @@
                 onclick="explainConcept(<%= question.number %>, <%= index %>, 'multiple')">
                 Explain
               </button>
+              <button 
+                type="button" 
+                id="explain-succinct-btn-<%= question.number %>"
+                class="explain-succinct-button" 
+                onclick="explainSuccinct(<%= question.number %>, <%= index %>, 'multiple')">
+                Explain Succinctly
+              </button>
             </div>
             
             <div id="explanation-display-<%= index %>" class="explanation-container"></div>
@@ -97,6 +104,13 @@
                   class="explain-button" 
                   onclick="explainConcept(<%= question.number %>, <%= index %>, 'short')">
                   Explain
+                </button>
+                <button 
+                  type="button" 
+                  id="explain-succinct-btn-<%= question.number %>"
+                  class="explain-succinct-button" 
+                  onclick="explainSuccinct(<%= question.number %>, <%= index %>, 'short')">
+                  Explain Succinctly
                 </button>
               </div>
               
