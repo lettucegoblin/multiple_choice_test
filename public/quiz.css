@@ -33,14 +33,19 @@ header {
   display: flex;
   gap: 10px;
   margin-bottom: 10px;
+  flex-wrap: wrap;
 }
 
-.submit-button, .show-answer-button {
+.submit-button, .show-answer-button, .explain-button {
   padding: 8px 16px;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
   flex: 0 0 auto;
+}
+
+.submit-button {
+  background-color: var(--primary, #1e88e5);
 }
 
 .show-answer-button {
@@ -49,21 +54,26 @@ header {
   border: 1px solid rgba(125, 125, 125, 0.4);
 }
 
+.explain-button {
+  background-color: rgba(150, 100, 200, 0.2);
+  color: inherit;
+  border: 1px solid rgba(150, 100, 200, 0.4);
+}
+
 .show-answer-button:hover {
   background-color: rgba(0, 0, 0, 0.3);
 }
 
-.feedback-container {
+.explain-button:hover {
+  background-color: rgba(150, 100, 200, 0.3);
+}
+
+.feedback-container, .model-answer-container, .explanation-container {
   margin-top: 1rem;
   width: 100%;
 }
 
 /* Model answer styling */
-.model-answer-container {
-  margin-top: 1rem;
-  width: 100%;
-}
-
 .model-answer-box {
   padding: 16px;
   border-radius: 8px;
@@ -81,6 +91,25 @@ header {
   line-height: 1.6;
 }
 
+/* Explanation styling */
+.explanation-box {
+  padding: 16px;
+  border-radius: 8px;
+  background-color: rgba(150, 100, 200, 0.1);
+  border-left: 4px solid rgba(150, 100, 200, 0.7);
+}
+
+.explanation-box h4 {
+  margin-top: 0;
+  margin-bottom: 8px;
+  color: rgba(150, 100, 200, 0.9);
+}
+
+.explanation-content {
+  line-height: 1.6;
+}
+
+/* Feedback styling */
 .feedback-box {
   padding: 16px;
   border-radius: 8px;
@@ -98,34 +127,41 @@ header {
   line-height: 1.6;
 }
 
-/* Styling for markdown-rendered elements */
+/* Styling for markdown-rendered elements - shared across all content types */
 .feedback-content h1, 
 .feedback-content h2, 
 .feedback-content h3,
 .model-answer-content h1,
 .model-answer-content h2,
-.model-answer-content h3 {
+.model-answer-content h3,
+.explanation-content h1,
+.explanation-content h2,
+.explanation-content h3 {
   margin-top: 0.8em;
   margin-bottom: 0.5em;
 }
 
 .feedback-content h1,
-.model-answer-content h1 {
+.model-answer-content h1,
+.explanation-content h1 {
   font-size: 1.5em;
 }
 
 .feedback-content h2,
-.model-answer-content h2 {
+.model-answer-content h2,
+.explanation-content h2 {
   font-size: 1.3em;
 }
 
 .feedback-content h3,
-.model-answer-content h3 {
+.model-answer-content h3,
+.explanation-content h3 {
   font-size: 1.1em;
 }
 
 .feedback-content code,
-.model-answer-content code {
+.model-answer-content code,
+.explanation-content code {
   font-family: monospace;
   background-color: rgba(0, 0, 0, 0.1);
   padding: 2px 4px;
@@ -134,7 +170,8 @@ header {
 }
 
 .feedback-content pre,
-.model-answer-content pre {
+.model-answer-content pre,
+.explanation-content pre {
   background-color: rgba(0, 0, 0, 0.1);
   padding: 10px;
   border-radius: 5px;
@@ -143,7 +180,8 @@ header {
 }
 
 .feedback-content pre code,
-.model-answer-content pre code {
+.model-answer-content pre code,
+.explanation-content pre code {
   background-color: transparent;
   padding: 0;
 }
@@ -151,23 +189,28 @@ header {
 .feedback-content ul, 
 .feedback-content ol,
 .model-answer-content ul,
-.model-answer-content ol {
+.model-answer-content ol,
+.explanation-content ul,
+.explanation-content ol {
   padding-left: 20px;
   margin: 10px 0;
 }
 
 .feedback-content li,
-.model-answer-content li {
+.model-answer-content li,
+.explanation-content li {
   margin-bottom: 5px;
 }
 
 .feedback-content p,
-.model-answer-content p {
+.model-answer-content p,
+.explanation-content p {
   margin-bottom: 1em;
 }
 
 .feedback-content blockquote,
-.model-answer-content blockquote {
+.model-answer-content blockquote,
+.explanation-content blockquote {
   border-left: 3px solid rgba(125, 125, 125, 0.5);
   padding-left: 15px;
   margin-left: 0;

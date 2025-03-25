@@ -76,10 +76,19 @@
                   onclick="showModelAnswer(<%= question.number %>, <%= index %>)">
                   Show Answer
                 </button>
+                
+                <button 
+                  type="button" 
+                  id="explain-btn-<%= question.number %>"
+                  class="explain-button" 
+                  onclick="explainConcept(<%= question.number %>, <%= index %>)">
+                  Explain
+                </button>
               </div>
               
               <div id="feedback-<%= index %>" class="feedback-container"></div>
               <div id="model-answer-display-<%= index %>" class="model-answer-container"></div>
+              <div id="explanation-display-<%= index %>" class="explanation-container"></div>
             </div>
           <% } %>
         </div>
