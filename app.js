@@ -121,7 +121,7 @@ app.post("/evaluate-answer", async (req, res) => {
     
     // Call the Open WebUI API endpoint with the correct path for your instance
     const response = await axios.post(process.env.ENDPOINT, {
-      model: process.env.MODEL,
+      model: "gemma3:12b",
       messages: [
         {
           role: "system", 
@@ -151,6 +151,47 @@ app.post("/evaluate-answer", async (req, res) => {
     res.status(500).json({ 
       success: false, 
       feedback: "There was an error evaluating your answer. Please try again later." 
+    });
+  }
+});
+
+// New endpoint to explain the concept
+app.post("/explain-concept", async (req, res) => {
+  try {
+    const { question } = req.body;
+    
+    // Call the Open WebUI API endpoint for explanation
+    const response = await axios.post(process.env.ENDPOINT, {
+      model: "gemma3:12b",
+      messages: [
+        {
+          role: "system", 
+          content: "You are an educational AI tutor. Provide clear, concise explanations of concepts. Use examples where helpful. Format your response in markdown for readability."
+        },
+        {
+          role: "user",
+          content: `I need an explanation of the following concept from my class:\n\n${question}\n\nPlease explain this concept in detail, including key points, examples, and any relevant background information. Format your response with appropriate headings and structure for clarity.`
+        }
+      ]
+    }, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${process.env.API_KEY}`
+      }
+    });
+    
+    // Extract the explanation from the response
+    const explanation = response.data.choices[0].message.content;
+    
+    res.json({ 
+      success: true,
+      explanation: explanation
+    });
+  } catch (error) {
+    console.error('Error getting explanation:', error);
+    res.status(500).json({ 
+      success: false, 
+      explanation: "There was an error generating the explanation. Please try again later." 
     });
   }
 });
