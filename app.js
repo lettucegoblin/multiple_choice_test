@@ -154,8 +154,7 @@ app.post("/evaluate-answer", async (req, res) => {
     });
   }
 });
-
-// Endpoint to explain the concept
+// Endpoint to explain the concept with streaming support
 app.post("/explain-concept", async (req, res) => {
   try {
     const { question, options } = req.body;
@@ -173,7 +172,15 @@ app.post("/explain-concept", async (req, res) => {
     
     content += "\n\nPlease explain this concept in detail, including key points, examples, and any relevant background information. Format your response with appropriate headings and structure for clarity.";
     
-    // Call the Open WebUI API endpoint for explanation
+    // Set headers for streaming
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+    
+    // Create a flag to track if any content has been sent
+    let contentSent = false;
+    
+    // Make the API call with streaming enabled
     const response = await axios.post(process.env.ENDPOINT, {
       model: process.env.MODEL,
       messages: [
@@ -185,27 +192,264 @@ app.post("/explain-concept", async (req, res) => {
           role: "user",
           content: content
         }
-      ]
+      ],
+      stream: true,
+      options: {}
     }, {
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${process.env.API_KEY}`
+      },
+      responseType: 'stream'
+    });
+    
+    // Process and forward the stream
+    response.data.on('data', (chunk) => {
+      try {
+        const lines = chunk.toString().split('\n');
+        
+        for (const line of lines) {
+          if (line.startsWith('data: ') && line !== 'data: [DONE]') {
+            // Extract the content from the stream
+            const jsonData = JSON.parse(line.substring(6));
+            if (jsonData.choices && jsonData.choices[0].delta && jsonData.choices[0].delta.content) {
+              const content = jsonData.choices[0].delta.content;
+              contentSent = true;
+              
+              // Send the chunk to the client
+              res.write(`data: ${JSON.stringify({ chunk: content })}\n\n`);
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Error processing stream chunk:', error);
       }
     });
     
-    // Extract the explanation from the response
-    const explanation = response.data.choices[0].message.content;
-    
-    res.json({ 
-      success: true,
-      explanation: explanation
+    response.data.on('end', () => {
+      // If no content was sent, send an empty success message
+      if (!contentSent) {
+        res.write(`data: ${JSON.stringify({ chunk: '' })}\n\n`);
+      }
+      res.write('data: [DONE]\n\n');
+      res.end();
     });
+    
+    response.data.on('error', (err) => {
+      console.error('Stream error:', err);
+      res.end();
+    });
+    
   } catch (error) {
-    console.error('Error getting explanation:', error);
+    console.error('Error setting up explanation stream:', error);
+    // Return a standard JSON error if streaming setup fails
+    res.setHeader('Content-Type', 'application/json');
     res.status(500).json({ 
       success: false, 
       explanation: "There was an error generating the explanation. Please try again later." 
     });
+  }
+});
+
+app.get('/explain-concept-stream', async (req, res) => {
+  try {
+    const { question, options } = req.query;
+    let parsedOptions = [];
+    
+    // Parse options if provided
+    if (options) {
+      try {
+        parsedOptions = JSON.parse(options);
+      } catch (e) {
+        console.error('Error parsing options:', e);
+      }
+    }
+    
+    // Build content based on whether options are provided (multiple choice) or not
+    let content = `I need an explanation of the following concept from my class:\n\n${question}`;
+    
+    // If options are provided (for multiple choice), include them
+    if (parsedOptions && parsedOptions.length > 0) {
+      content += "\n\nThe question includes these options:";
+      parsedOptions.forEach(option => {
+        content += `\n${option.letter}) ${option.text}`;
+      });
+    }
+    
+    content += "\n\nPlease explain this concept in detail, including key points, examples, and any relevant background information. Format your response with appropriate headings and structure for clarity.";
+    
+    // Set headers for server-sent events
+    res.writeHead(200, {
+      'Content-Type': 'text/event-stream',
+      'Cache-Control': 'no-cache',
+      'Connection': 'keep-alive',
+    });
+    
+    // Make the API call with streaming enabled
+    const response = await axios.post(process.env.ENDPOINT, {
+      model: process.env.MODEL,
+      messages: [
+        {
+          role: "system", 
+          content: "You are an educational AI tutor. Provide clear, concise explanations of concepts. Use examples where helpful. Format your response in markdown for readability."
+        },
+        {
+          role: "user",
+          content: content
+        }
+      ],
+      stream: true,
+      options: {}
+    }, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${process.env.API_KEY}`
+      },
+      responseType: 'stream'
+    });
+    
+    // Process the streaming response
+    response.data.on('data', (chunk) => {
+      try {
+        const lines = chunk.toString().split('\n');
+        
+        for (const line of lines) {
+          if (line.startsWith('data: ') && line !== 'data: [DONE]') {
+            try {
+              // Extract the content from the stream
+              const jsonData = JSON.parse(line.substring(6));
+              if (jsonData.choices && jsonData.choices[0].delta && jsonData.choices[0].delta.content) {
+                const content = jsonData.choices[0].delta.content;
+                
+                // Send the chunk to the client
+                res.write(`data: ${JSON.stringify({ chunk: content })}\n\n`);
+              }
+            } catch (parseError) {
+              console.error('Error parsing JSON:', parseError);
+            }
+          } else if (line === 'data: [DONE]') {
+            res.write('data: [DONE]\n\n');
+          }
+        }
+      } catch (error) {
+        console.error('Error processing stream chunk:', error);
+      }
+    });
+    
+    response.data.on('end', () => {
+      res.write('data: [DONE]\n\n');
+      res.end();
+    });
+    
+    response.data.on('error', (err) => {
+      console.error('Stream error:', err);
+      res.write(`data: ${JSON.stringify({ error: 'Stream error occurred' })}\n\n`);
+      res.end();
+    });
+    
+    // Handle client disconnect
+    req.on('close', () => {
+      try {
+        response.data.destroy();
+      } catch (e) {
+        console.error('Error closing stream:', e);
+      }
+    });
+    
+  } catch (error) {
+    console.error('Error in explain-concept-stream:', error);
+    res.write(`data: ${JSON.stringify({ error: 'Failed to generate explanation' })}\n\n`);
+    res.end();
+  }
+});
+
+// Add this route to your app.js for streaming answer evaluation
+app.get('/evaluate-answer-stream', async (req, res) => {
+  try {
+    const { question, modelAnswer, userAnswer } = req.query;
+    
+    // Set headers for server-sent events
+    res.writeHead(200, {
+      'Content-Type': 'text/event-stream',
+      'Cache-Control': 'no-cache',
+      'Connection': 'keep-alive',
+    });
+    
+    // Make the API call with streaming enabled
+    const response = await axios.post(process.env.ENDPOINT, {
+      model: process.env.MODEL,
+      messages: [
+        {
+          role: "system", 
+          content: "You are an educational assessment AI. Keep your answer succinct. Your job is to evaluate student answers to questions and provide helpful feedback. Be constructive and encouraging."
+        },
+        {
+          role: "user",
+          content: `Question: ${question}\n\nTextbook Answer: ${modelAnswer}\n\nStudent Answer: ${userAnswer}\n\nPlease evaluate the student's answer compared to the textbook answer. Provide specific feedback on what was correct and what could be improved. Be educational and constructive.`
+        }
+      ],
+      stream: true,
+      options: {}
+    }, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${process.env.API_KEY}`
+      },
+      responseType: 'stream'
+    });
+    
+    // Process the streaming response
+    response.data.on('data', (chunk) => {
+      try {
+        const lines = chunk.toString().split('\n');
+        
+        for (const line of lines) {
+          if (line.startsWith('data: ') && line !== 'data: [DONE]') {
+            try {
+              // Extract the content from the stream
+              const jsonData = JSON.parse(line.substring(6));
+              if (jsonData.choices && jsonData.choices[0].delta && jsonData.choices[0].delta.content) {
+                const content = jsonData.choices[0].delta.content;
+                
+                // Send the chunk to the client
+                res.write(`data: ${JSON.stringify({ chunk: content })}\n\n`);
+              }
+            } catch (parseError) {
+              console.error('Error parsing JSON:', parseError);
+            }
+          } else if (line === 'data: [DONE]') {
+            res.write('data: [DONE]\n\n');
+          }
+        }
+      } catch (error) {
+        console.error('Error processing stream chunk:', error);
+      }
+    });
+    
+    response.data.on('end', () => {
+      res.write('data: [DONE]\n\n');
+      res.end();
+    });
+    
+    response.data.on('error', (err) => {
+      console.error('Stream error:', err);
+      res.write(`data: ${JSON.stringify({ error: 'Stream error occurred' })}\n\n`);
+      res.end();
+    });
+    
+    // Handle client disconnect
+    req.on('close', () => {
+      try {
+        response.data.destroy();
+      } catch (e) {
+        console.error('Error closing stream:', e);
+      }
+    });
+    
+  } catch (error) {
+    console.error('Error in evaluate-answer-stream:', error);
+    res.write(`data: ${JSON.stringify({ error: 'Failed to evaluate answer' })}\n\n`);
+    res.end();
   }
 });
 

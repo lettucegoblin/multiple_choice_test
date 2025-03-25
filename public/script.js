@@ -87,7 +87,7 @@ function showModelAnswer(questionNumber, questionIndex) {
   }
 }
 
-// Function to explain the concept
+// Function to explain the concept with streaming
 async function explainConcept(questionNumber, questionIndex, questionType) {
   const questionElement = document.querySelector(`.question-container[data-question-index="${questionIndex}"] h3`);
   const question = questionElement.textContent.replace(`Question ${questionNumber}: `, '');
@@ -105,8 +105,15 @@ async function explainConcept(questionNumber, questionIndex, questionType) {
   explainButton.disabled = true;
   explainButton.textContent = 'Generating...';
   
-  // Start the loading animation
-  const loadingInterval = startLoadingAnimation(explanationDisplay, "Generating explanation");
+  // Create explanation container
+  explanationDisplay.innerHTML = `
+    <div class="explanation-box">
+      <h4>Concept Explanation</h4>
+      <div class="explanation-content"></div>
+    </div>
+  `;
+  
+  const explanationContent = explanationDisplay.querySelector('.explanation-content');
   
   try {
     // Prepare request data based on question type
@@ -117,44 +124,52 @@ async function explainConcept(questionNumber, questionIndex, questionType) {
       requestData.options = getOptionsForQuestion(questionIndex);
     }
     
-    const response = await fetch('/explain-concept', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(requestData)
-    });
+    // Create event source for streaming
+    const eventSource = new EventSource('/explain-concept-stream?' + new URLSearchParams({
+      question: question,
+      options: JSON.stringify(questionType === 'multiple' ? getOptionsForQuestion(questionIndex) : [])
+    }));
     
-    const data = await response.json();
+    let markdown = '';
+    let renderer = new marked.Renderer();
     
-    // Clear the loading animation
-    clearInterval(loadingInterval);
-    
-    if (data.success) {
-      // Use marked.js to render markdown
-      const htmlExplanation = marked.parse(data.explanation);
+    // Handle incoming data
+    eventSource.onmessage = function(event) {
+      if (event.data === '[DONE]') {
+        eventSource.close();
+        explainButton.disabled = false;
+        explainButton.textContent = 'Hide Explanation';
+        return;
+      }
       
-      explanationDisplay.innerHTML = `
-        <div class="explanation-box">
-          <h4>Concept Explanation</h4>
-          <div class="explanation-content">${htmlExplanation}</div>
-        </div>
-      `;
-      explainButton.textContent = 'Hide Explanation';
-    } else {
-      explanationDisplay.innerHTML = `<div class="feedback-error">${data.explanation}</div>`;
-      explainButton.textContent = 'Explain';
-    }
-  } catch (error) {
-    // Clear the loading animation
-    clearInterval(loadingInterval);
+      try {
+        const data = JSON.parse(event.data);
+        if (data.chunk) {
+          markdown += data.chunk;
+          explanationContent.innerHTML = marked.parse(markdown);
+          
+          // Scroll to the bottom of the content
+          explanationContent.scrollTop = explanationContent.scrollHeight;
+        }
+      } catch (e) {
+        console.error('Error parsing streaming data:', e);
+      }
+    };
     
-    console.error('Error getting explanation:', error);
+    // Handle errors
+    eventSource.onerror = function(error) {
+      console.error('EventSource error:', error);
+      eventSource.close();
+      explanationDisplay.innerHTML = '<div class="feedback-error">Error receiving explanation stream. Please try again later.</div>';
+      explainButton.disabled = false;
+      explainButton.textContent = 'Explain';
+    };
+    
+  } catch (error) {
+    console.error('Error setting up explanation stream:', error);
     explanationDisplay.innerHTML = '<div class="feedback-error">Failed to generate explanation. Please try again later.</div>';
-    explainButton.textContent = 'Explain';
-  } finally {
-    // Restore button state
     explainButton.disabled = false;
+    explainButton.textContent = 'Explain';
   }
 }
 
@@ -175,48 +190,64 @@ async function evaluateShortAnswer(questionNumber, questionIndex) {
   submitButton.disabled = true;
   submitButton.textContent = 'Evaluating...';
   
-  // Start the loading animation
-  const loadingInterval = startLoadingAnimation(feedbackContainer);
+  // Create feedback container
+  feedbackContainer.innerHTML = `
+    <div class="feedback-box">
+      <h4>Feedback</h4>
+      <div class="feedback-content"></div>
+    </div>
+  `;
+  
+  const feedbackContent = feedbackContainer.querySelector('.feedback-content');
   
   try {
-    const response = await fetch('/evaluate-answer', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        question,
-        modelAnswer,
-        userAnswer
-      })
-    });
+    // Create event source for streaming
+    const eventSource = new EventSource('/evaluate-answer-stream?' + new URLSearchParams({
+      question: question,
+      modelAnswer: modelAnswer,
+      userAnswer: userAnswer
+    }));
     
-    const data = await response.json();
+    let markdown = '';
     
-    // Clear the loading animation
-    clearInterval(loadingInterval);
-    
-    if (data.success) {
-      // Use marked.js to render markdown
-      const htmlFeedback = marked.parse(data.feedback);
+    // Handle incoming data
+    eventSource.onmessage = function(event) {
+      if (event.data === '[DONE]') {
+        eventSource.close();
+        submitButton.disabled = false;
+        submitButton.textContent = 'Submit Answer';
+        return;
+      }
       
-      feedbackContainer.innerHTML = `
-        <div class="feedback-box">
-          <h4>Feedback</h4>
-          <div class="feedback-content">${htmlFeedback}</div>
-        </div>
-      `;
-    } else {
-      feedbackContainer.innerHTML = `<div class="feedback-error">${data.feedback}</div>`;
-    }
-  } catch (error) {
-    // Clear the loading animation
-    clearInterval(loadingInterval);
+      try {
+        const data = JSON.parse(event.data);
+        if (data.chunk) {
+          markdown += data.chunk;
+          feedbackContent.innerHTML = marked.parse(markdown);
+          
+          // Scroll to the bottom of the content
+          feedbackContent.scrollTop = feedbackContent.scrollHeight;
+        } else if (data.error) {
+          feedbackContainer.innerHTML = `<div class="feedback-error">${data.error}</div>`;
+          eventSource.close();
+        }
+      } catch (e) {
+        console.error('Error parsing streaming data:', e);
+      }
+    };
     
+    // Handle errors
+    eventSource.onerror = function(error) {
+      console.error('EventSource error:', error);
+      eventSource.close();
+      feedbackContainer.innerHTML = '<div class="feedback-error">Error receiving feedback stream. Please try again later.</div>';
+      submitButton.disabled = false;
+      submitButton.textContent = 'Submit Answer';
+    };
+    
+  } catch (error) {
     console.error('Error evaluating answer:', error);
     feedbackContainer.innerHTML = '<div class="feedback-error">Failed to evaluate answer. Please try again later.</div>';
-  } finally {
-    // Restore button state
     submitButton.disabled = false;
     submitButton.textContent = 'Submit Answer';
   }
