@@ -121,7 +121,7 @@ app.post("/evaluate-answer", async (req, res) => {
     
     // Call the Open WebUI API endpoint with the correct path for your instance
     const response = await axios.post(process.env.ENDPOINT, {
-      model: "gemma3:12b",
+      model: process.env.MODEL,
       messages: [
         {
           role: "system", 
