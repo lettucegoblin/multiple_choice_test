@@ -37,19 +37,6 @@
           </li>
           <% }) %>
         </ul>
-
-        <!-- Add explain button for multiple choice questions -->
-        <div class="button-group">
-          <button type="button" id="explain-btn-<%= question.number %>" class="explain-button" onclick="explainConcept(<%= question.number %>, <%= index %>, 'multiple')">
-            Explain
-          </button>
-          <button type="button" id="explain-succinct-btn-<%= question.number %>" class="explain-succinct-button" onclick="explainSuccinct(<%= question.number %>, <%= index %>, 'multiple')">
-            Explain Succinctly
-          </button>
-        </div>
-
-        <div id="explanation-display-<%= index %>" class="explanation-container"></div>
-
         <% } else if (question.type === "short") { %>
         <!-- Short answer question -->
         <div class="short-answer-section">
@@ -57,29 +44,33 @@
 
           <!-- Hidden field to store the model answer -->
           <input type="hidden" id="model-answer-<%= question.number %>" value="<%= question.modelAnswer %>" />
-
-          <div class="button-group">
-            <button type="button" id="submit-btn-<%= question.number %>" class="submit-button" onclick="evaluateShortAnswer(<%= question.number %>, <%= index %>)">
-              Submit Answer
-            </button>
-
-            <button type="button" id="show-answer-btn-<%= question.number %>" class="show-answer-button" onclick="showModelAnswer(<%= question.number %>, <%= index %>)">
-              Show Answer
-            </button>
-
-            <button type="button" id="explain-btn-<%= question.number %>" class="explain-button" onclick="explainConcept(<%= question.number %>, <%= index %>, 'short')">
-              Explain
-            </button>
-            <button type="button" id="explain-succinct-btn-<%= question.number %>" class="explain-succinct-button" onclick="explainSuccinct(<%= question.number %>, <%= index %>, 'short')">
-              Explain Succinctly
-            </button>
-          </div>
-
-          <div id="feedback-<%= index %>" class="feedback-container"></div>
-          <div id="model-answer-display-<%= index %>" class="model-answer-container"></div>
-          <div id="explanation-display-<%= index %>" class="explanation-container"></div>
         </div>
         <% } %>
+
+        <div class="button-group">
+          <% if (question.type === "short") { %>
+          <button type="button" id="submit-btn-<%= question.number %>" class="submit-button" onclick="evaluateShortAnswer(<%= question.number %>, <%= index %>)">
+            Submit Answer
+          </button>
+
+          <button type="button" id="show-answer-btn-<%= question.number %>" class="show-answer-button" onclick="showModelAnswer(<%= question.number %>, <%= index %>)">
+            Show Answer
+          </button>
+          <% } %>
+
+          <button type="button" id="explain-btn-<%= question.number %>" class="explain-button" onclick="explainConcept(<%= question.number %>, <%= index %>, 'short')">
+            Explain
+          </button>
+
+          <button type="button" id="explain-succinct-btn-<%= question.number %>" class="explain-succinct-button" onclick="explainSuccinct(<%= question.number %>, <%= index %>, 'short')">
+            Explain Succinctly
+          </button>
+        </div>
+        <% if (question.type === "short") { %>
+        <div id="feedback-<%= index %>" class="feedback-container"></div>
+        <% } %>
+        <div id="model-answer-display-<%= index %>" class="model-answer-container"></div>
+        <div id="explanation-display-<%= index %>" class="explanation-container"></div>
       </div>
       <% }) %>
     </form>
