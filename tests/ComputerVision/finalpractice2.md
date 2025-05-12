@@ -11,6 +11,28 @@ Rationale: SIFT produces 128-dimensional feature vectors by dividing a 16×16 re
 
 ---
 
+**Q: In SIFT's scale space construction, what is the typical number of scales per octave?**
+- A) 2
+- B) 3
+- C) 4
+- D) 5
+
+**Answer:** D
+Rationale: SIFT typically uses 5 scales per octave, with each scale being a Gaussian blur with increasing sigma values. This provides sufficient sampling of scale space for reliable extrema detection.
+
+---
+
+**Q: What is the size of the local region around a SIFT keypoint used for descriptor computation?**
+- A) 8×8 pixels
+- B) 16×16 pixels
+- C) 32×32 pixels
+- D) 64×64 pixels
+
+**Answer:** B
+Rationale: SIFT uses a 16×16 pixel region around each keypoint, which is then divided into 4×4 subregions for histogram computation.
+
+---
+
 **Q: Calculate the number of parameters in a convolutional layer with 64 filters, 3×3 kernel size, and 32 input channels.**
 - A) 18,432
 - B) 18,496
@@ -19,6 +41,17 @@ Rationale: SIFT produces 128-dimensional feature vectors by dividing a 16×16 re
 
 **Answer:** B
 Rationale: Using the formula: m × (f × f × m_in + 1) = 64 × (3 × 3 × 32 + 1) = 64 × 289 = 18,496 parameters. Each filter has 3×3×32 weights plus 1 bias.
+
+---
+
+**Q: If a convolutional layer has 128 filters with 5×5 kernels and 64 input channels, how many weights (excluding biases) does it have?**
+- A) 204,800
+- B) 204,928
+- C) 8,192
+- D) 8,320
+
+**Answer:** A
+Rationale: Weights only = m × f × f × m_in = 128 × 5 × 5 × 64 = 204,800. This excludes the 128 bias terms.
 
 ---
 
@@ -33,6 +66,17 @@ Rationale: Pooling layers have NO weights or biases (no learnable parameters) an
 
 ---
 
+**Q: For a 2×2 max pooling layer with stride 2, what is the reduction factor in spatial dimensions?**
+- A) 2× reduction in each dimension
+- B) 4× reduction in total area
+- C) Both A and B
+- D) No reduction
+
+**Answer:** C
+Rationale: A 2×2 max pooling with stride 2 reduces each spatial dimension by half (2× reduction), resulting in a 4× reduction in total area (1/2 × 1/2 = 1/4).
+
+---
+
 **Q: In the formula for CNN output size [(n_in + 2p - f)/s + 1], if you have a 32×32 input, 5×5 filter, stride 2, and padding 2, what is the output size?**
 - A) 14×14
 - B) 15×15
@@ -44,6 +88,17 @@ Rationale: Using the formula: (32 + 2×2 - 5)/2 + 1 = (32 + 4 - 5)/2 + 1 = 31/2 
 
 ---
 
+**Q: With an input of 224×224×3, filter size 7×7, stride 2, and padding 3, what is the output height?**
+- A) 110
+- B) 111
+- C) 112
+- D) 113
+
+**Answer:** C
+Rationale: (224 + 2×3 - 7)/2 + 1 = (224 + 6 - 7)/2 + 1 = 223/2 + 1 = 111.5 + 1 = 112.5, rounds down to 112.
+
+---
+
 **Q: What activation function is defined as (e^x - e^(-x))/(e^x + e^(-x))?**
 - A) ReLU
 - B) Sigmoid
@@ -52,6 +107,28 @@ Rationale: Using the formula: (32 + 2×2 - 5)/2 + 1 = (32 + 4 - 5)/2 + 1 = 31/2 
 
 **Answer:** C
 Rationale: This is the formula for the hyperbolic tangent (tanh) function, which outputs values between -1 and 1.
+
+---
+
+**Q: What is the output range of the sigmoid activation function?**
+- A) -1 to 1
+- B) 0 to 1
+- C) -∞ to ∞
+- D) 0 to ∞
+
+**Answer:** B
+Rationale: The sigmoid function 1/(1+e^(-x)) asymptotically approaches 0 for large negative inputs and 1 for large positive inputs, with output always between 0 and 1.
+
+---
+
+**Q: When comparing ReLU to sigmoid for hidden layers, what is ReLU's main computational advantage?**
+- A) Better accuracy
+- B) Simpler derivative calculation
+- C) Bounded output
+- D) Negative outputs
+
+**Answer:** B
+Rationale: ReLU's derivative is simply 1 for positive inputs and 0 for negative inputs, making backpropagation much faster than sigmoid's derivative: σ(x)(1-σ(x)).
 
 ---
 
@@ -72,6 +149,28 @@ Rationale: MS-COCO is specifically mentioned in the study guide as having 80 cla
 
 ---
 
+**Q: What are the dimensions of CIFAR-10 images?**
+- A) 28×28×1
+- B) 32×32×3
+- C) 64×64×3
+- D) 224×224×3
+
+**Answer:** B
+Rationale: CIFAR-10 consists of 32×32 color images (3 channels for RGB) divided into 10 classes.
+
+---
+
+**Q: How many classes does the CIFAR-100 dataset contain?**
+- A) 10
+- B) 20
+- C) 80
+- D) 100
+
+**Answer:** D
+Rationale: As the name suggests, CIFAR-100 contains 100 classes, compared to CIFAR-10's 10 classes.
+
+---
+
 **Q: What is the primary purpose of the objectness score in YOLO-style object detection?**
 - A) To determine the class of the object
 - B) To indicate whether an object exists in a grid cell
@@ -83,6 +182,17 @@ Rationale: The objectness score (often denoted as pc or confidence) indicates th
 
 ---
 
+**Q: In YOLOv1's loss function, which component uses squared error?**
+- A) Classification loss only
+- B) Bounding box coordinate loss only
+- C) Both bounding box and confidence loss
+- D) All components
+
+**Answer:** C
+Rationale: YOLOv1 uses squared error for bounding box coordinates (x, y, width, height) and confidence scores, while using squared error for classification as well (though later versions use cross-entropy).
+
+---
+
 **Q: In a fully connected layer with 4096 inputs and 1000 outputs, how many total parameters (weights + biases) are there?**
 - A) 4,096,000
 - B) 4,097,000
@@ -91,6 +201,28 @@ Rationale: The objectness score (often denoted as pc or confidence) indicates th
 
 **Answer:** B
 Rationale: Total parameters = (inputs × outputs) + outputs = (4096 × 1000) + 1000 = 4,096,000 + 1,000 = 4,097,000.
+
+---
+
+**Q: If you flatten a 7×7×512 feature map for input to a fully connected layer, how many values do you get?**
+- A) 25,088
+- B) 24,576
+- C) 3,584
+- D) 512
+
+**Answer:** A
+Rationale: Flattening multiplies all dimensions: 7 × 7 × 512 = 49 × 512 = 25,088 values.
+
+---
+
+**Q: How many neurons are typically in the final layer of classification networks trained on ImageNet?**
+- A) 10
+- B) 100
+- C) 1000
+- D) 10,000
+
+**Answer:** C
+Rationale: ImageNet has 1000 classes, so classification networks like AlexNet, VGG, ResNet have 1000 neurons in their final layer.
 
 ---
 
@@ -122,6 +254,17 @@ Rationale: YOLO (You Only Look Once) performs object detection in a single forwa
 
 ---
 
+**Q: In a YOLO grid cell, how many values are typically predicted per anchor box?**
+- A) 4 (box coordinates)
+- B) 5 (box coordinates + objectness)
+- C) 5 + number of classes
+- D) Only class probabilities
+
+**Answer:** C
+Rationale: Each anchor box predicts 5 values (x, y, width, height, objectness) plus class probabilities for each class, totaling 5 + number of classes.
+
+---
+
 **Q: In the Difference of Gaussians (DoG) used in SIFT, what is being computed?**
 - A) The difference between two adjacent scales in the Gaussian scale space
 - B) The gradient magnitude at each pixel
@@ -133,6 +276,17 @@ Rationale: DoG is computed by subtracting adjacent Gaussian-blurred images at di
 
 ---
 
+**Q: How many spatial neighbors does a pixel have when checking for extrema in SIFT's 3D scale space?**
+- A) 8 (same scale only)
+- B) 18 (including adjacent scales)
+- C) 26 (including adjacent scales)
+- D) 27 (including itself)
+
+**Answer:** C
+Rationale: In SIFT, extrema are compared to 26 neighbors: 8 in the same scale, 9 in the scale above, and 9 in the scale below (3×3×3 - 1 = 26).
+
+---
+
 **Q: What is the formula for calculating Intersection over Union (IoU)?**
 - A) Area of Union / Area of Intersection
 - B) Area of Intersection / Area of Union
@@ -141,6 +295,17 @@ Rationale: DoG is computed by subtracting adjacent Gaussian-blurred images at di
 
 **Answer:** B
 Rationale: IoU is calculated as the area of intersection between two bounding boxes divided by the area of their union, measuring the overlap between predicted and ground truth boxes.
+
+---
+
+**Q: At what IoU threshold is a detection typically considered correct for PASCAL-VOC evaluation?**
+- A) 0.3
+- B) 0.5
+- C) 0.7
+- D) 0.9
+
+**Answer:** B
+Rationale: The standard IoU threshold for PASCAL-VOC is 0.5, meaning a detection is considered correct if it has at least 50% overlap with the ground truth.
 
 ---
 
@@ -161,6 +326,17 @@ Rationale: Translation invariance means the network can recognize the same featu
 
 ---
 
+**Q: What property makes convolution commutative but correlation not commutative?**
+- A) The use of padding
+- B) The filter flipping operation
+- C) The stride value
+- D) The activation function
+
+**Answer:** B
+Rationale: Convolution involves flipping the kernel before applying it, which makes it commutative (f*g = g*f). Correlation applies the kernel directly without flipping, so it's not commutative.
+
+---
+
 **Q: For the MNIST dataset, what are the image dimensions and number of classes?**
 - A) 32×32×3 images, 10 classes
 - B) 28×28×1 images, 10 classes
@@ -169,6 +345,28 @@ Rationale: Translation invariance means the network can recognize the same featu
 
 **Answer:** B
 Rationale: MNIST consists of 28×28 grayscale (1 channel) images of handwritten digits, representing 10 classes (digits 0-9).
+
+---
+
+**Q: What is the primary difference between Precision and Recall metrics?**
+- A) Precision uses true positives, Recall uses true negatives
+- B) Precision measures correct positive predictions, Recall measures found actual positives
+- C) Precision is for classification, Recall is for detection
+- D) They are the same metric
+
+**Answer:** B
+Rationale: Precision = TP/(TP+FP) measures what fraction of positive predictions were correct. Recall = TP/(TP+FN) measures what fraction of actual positives were found.
+
+---
+
+**Q: Calculate Precision given: TP=80, FP=20, TN=70, FN=30**
+- A) 0.8
+- B) 0.73
+- C) 0.67
+- D) 0.5
+
+**Answer:** A
+Rationale: Precision = TP/(TP+FP) = 80/(80+20) = 80/100 = 0.8
 
 ---
 
@@ -200,14 +398,36 @@ Rationale: The XOR problem showed that a single perceptron could not learn non-l
 
 ---
 
+**Q: Which logical gate can a single perceptron NOT implement?**
+- A) AND
+- B) OR
+- C) XOR
+- D) NOT
+
+**Answer:** C
+Rationale: XOR is not linearly separable - you cannot draw a single line to separate the true outputs from false outputs, requiring at least one hidden layer.
+
+---
+
 **Q: In SIFT, why is orientation assignment performed before descriptor generation?**
 - A) To speed up computation
-- B) to achieve rotation invariance by aligning descriptors to a canonical orientation
+- B) To achieve rotation invariance by aligning descriptors to a canonical orientation
 - C) To reduce the descriptor size
 - D) To improve keypoint localization
 
 **Answer:** B
 Rationale: Orientation assignment determines the dominant gradient direction around each keypoint. Descriptors are then computed relative to this orientation, ensuring that the same feature produces the same descriptor regardless of its rotation in the image.
+
+---
+
+**Q: In SIFT's orientation histogram, how many bins are typically used?**
+- A) 8
+- B) 16
+- C) 36
+- D) 128
+
+**Answer:** C
+Rationale: SIFT uses 36 bins for the orientation histogram (covering 360 degrees in 10-degree increments) when assigning dominant orientations to keypoints.
 
 ---
 
@@ -239,6 +459,17 @@ Rationale: Using the formula: (64 + 2×3 - 7)/2 + 1 = (64 + 6 - 7)/2 + 1 = 63/2 
 
 ---
 
+**Q: How many feature maps does a convolutional layer produce?**
+- A) Same as input channels
+- B) Determined by kernel size
+- C) Equal to the number of filters
+- D) Always 3 for RGB
+
+**Answer:** C
+Rationale: Each filter in a convolutional layer produces one feature map, so the number of output feature maps equals the number of filters.
+
+---
+
 **Q: Explain how the historical progression from handcrafted features to learned features changed computer vision, using SIFT as an example of the transition period.**
 
 **SHORT ANSWER:** Before SIFT, computer vision relied entirely on handcrafted features where researchers manually designed feature detectors based on their understanding of the problem. These might include simple edge detectors, color histograms, or texture descriptors. SIFT represented a transition period - while still being a handcrafted algorithm, it introduced more sophisticated principles like scale invariance and automatic keypoint detection that would later influence learned features. SIFT showed that robust features needed to be invariant to scale, rotation, and illumination changes. With the advent of CNNs, the paradigm shifted completely to learned features. Instead of manually designing feature detectors, CNNs learn optimal features directly from data through backpropagation. This transition was revolutionary because: 1) Learned features often outperformed handcrafted ones, 2) The same architecture could learn features for different tasks without manual redesign, 3) Deep networks could learn hierarchical features that were difficult to handcraft. However, understanding algorithms like SIFT remains valuable as they provide insights into what makes good features and influenced the design of modern architectures (e.g., multi-scale processing in CNNs mirrors SIFT's scale-space approach).
@@ -253,6 +484,28 @@ Rationale: Using the formula: (64 + 2×3 - 7)/2 + 1 = (64 + 6 - 7)/2 + 1 = 63/2 
 
 **Answer:** C
 Rationale: Batch size refers to the number of training samples processed together before performing one gradient update. It affects training stability, convergence speed, and memory requirements.
+
+---
+
+**Q: Which hyperparameter directly affects training time by controlling passes through the dataset?**
+- A) Learning rate
+- B) Batch size
+- C) Number of epochs
+- D) Filter dimensions
+
+**Answer:** C
+Rationale: An epoch is one complete pass through the training dataset. The number of epochs directly determines how many times the model sees the entire dataset during training.
+
+---
+
+**Q: For average pooling with a 3×3 window, what operation is performed?**
+- A) Take the maximum value in the window
+- B) Take the minimum value in the window
+- C) Take the sum of all values in the window
+- D) Take the mean of all values in the window
+
+**Answer:** D
+Rationale: Average pooling computes the arithmetic mean of all values within the pooling window.
 
 ---
 
@@ -284,6 +537,17 @@ Rationale: ReLU introduces non-linearity (essential for learning complex functio
 
 ---
 
+**Q: For ReLU activation, what is the derivative for negative inputs?**
+- A) 1
+- B) 0
+- C) -1
+- D) x
+
+**Answer:** B
+Rationale: The derivative of ReLU is 0 for x < 0 and 1 for x > 0. This simple derivative makes backpropagation computationally efficient.
+
+---
+
 **Q: Which component of SIFT provides illumination invariance?**
 - A) Scale-space construction
 - B) Keypoint localization
@@ -292,3 +556,103 @@ Rationale: ReLU introduces non-linearity (essential for learning complex functio
 
 **Answer:** D
 Rationale: The final step in SIFT descriptor generation includes normalizing the 128-dimensional feature vector, which provides invariance to illumination changes by removing the effect of uniform brightness changes.
+
+---
+
+**Q: What is the purpose of the bias term in a convolutional layer?**
+- A) To scale the output
+- B) To allow activation even when all inputs are zero
+- C) To reduce overfitting
+- D) To increase the receptive field
+
+**Answer:** B
+Rationale: The bias term is added to the weighted sum, allowing the neuron to activate even when all inputs are zero, providing more flexibility in learning decision boundaries.
+
+---
+
+**Q: In object detection, what does mAP stand for?**
+- A) Maximum Average Precision
+- B) Mean Average Precision
+- C) Multi-scale Average Precision
+- D) Minimum Average Precision
+
+**Answer:** B
+Rationale: mAP stands for mean Average Precision, calculated as the average of AP values across all object classes.
+
+---
+
+**Q: Calculate the RMSE between points (3,4) and (6,8).**
+- A) 3
+- B) 4
+- C) 5
+- D) 7
+
+**Answer:** C
+Rationale: RMSE = √[(6-3)² + (8-4)²] = √[3² + 4²] = √[9 + 16] = √25 = 5
+
+---
+
+**Q: What is the typical threshold for confidence score filtering in NMS?**
+- A) 0.3
+- B) 0.5
+- C) 0.6
+- D) 0.9
+
+**Answer:** C
+Rationale: The study guide mentions 0.6 as a typical threshold for filtering out low-confidence bounding boxes before applying NMS.
+
+---
+
+**Q: In Harris corner detection, what do small values for both eigenvalues indicate?**
+- A) Corner
+- B) Edge
+- C) Flat region
+- D) Texture
+
+**Answer:** C
+Rationale: Small eigenvalues for both λ₁ and λ₂ indicate minimal intensity variation in all directions, characteristic of flat regions.
+
+---
+
+**Q: Explain why activation functions are crucial for neural networks and what would happen if we only used linear operations.**
+
+**SHORT ANSWER:** Activation functions are essential because they introduce non-linearity into neural networks. Without non-linear activation functions, a neural network would be equivalent to a single linear transformation, regardless of its depth. This is because the composition of linear functions is still linear: if f(x) = ax + b and g(x) = cx + d, then f(g(x)) = acx + ad + b, which is still linear. With only linear operations, a deep network would collapse to a simple linear model, severely limiting its representational power. Non-linear activation functions like ReLU, sigmoid, or tanh allow networks to learn complex, non-linear mappings from inputs to outputs. This enables them to approximate virtually any continuous function (universal approximation theorem) and solve complex problems like image recognition, where the relationship between pixels and class labels is highly non-linear. For example, detecting a cat in an image requires learning intricate non-linear relationships between pixel patterns, which would be impossible with only linear transformations. Activation functions also help in creating decision boundaries that can be curved or have complex shapes, rather than just straight lines or planes.
+
+---
+
+**Q: In a 7×7×512 feature map going into a 4096-unit FC layer, how many connections are there?**
+- A) 102,760,448
+- B) 51,380,224
+- C) 25,690,112
+- D) 12,845,056
+
+**Answer:** A
+Rationale: Connections = (7 × 7 × 512) × 4096 = 25,088 × 4096 = 102,760,448 connections.
+
+---
+
+**Q: What is the formula for Smooth L1 loss?**
+- A) |x| if |x| < 1, else x²
+- B) 0.5x² if |x| < 1, else |x| - 0.5
+- C) x² if |x| < 1, else 2|x| - 1
+- D) |x| if |x| < 0.5, else x² - 0.25
+
+**Answer:** B
+Rationale: Smooth L1 loss is defined as 0.5x² for |x| < 1 (smooth near zero) and |x| - 0.5 for |x| ≥ 1 (linear for large errors).
+
+---
+
+**Q: Describe the hierarchical feature learning in CNNs and how it relates to biological vision systems.**
+
+**SHORT ANSWER:** CNNs learn features hierarchically, similar to the ventral visual pathway in biological vision systems. Early layers (like V1 in the brain) detect simple features such as edges and orientations. These are learned through small receptive fields and capture local patterns. As we go deeper, layers combine these simple features to detect more complex patterns. Middle layers might detect textures, corners, and simple shapes (similar to V2/V4 in the brain). Deeper layers have larger receptive fields and can detect object parts or entire objects (similar to inferotemporal cortex). This hierarchy emerges naturally during training - the network learns that complex objects are best represented as combinations of simpler features. For example, a face detector might have early layers detecting edges, middle layers detecting eyes and noses as combinations of edges and curves, and final layers detecting complete faces by combining these parts. This hierarchical organization is computationally efficient and provides robustness to variations. Just as biological neurons become increasingly selective for complex features along the visual pathway, CNN neurons in deeper layers respond to increasingly abstract concepts. This biological inspiration has made CNNs particularly effective for visual tasks.
+
+---
+
+**Q: What is the typical confidence threshold for keeping bounding boxes after NMS?**
+- A) Any positive value
+- B) Greater than 0.5
+- C) Greater than 0.6
+- D) Exactly 1.0
+
+**Answer:** C
+Rationale: The study guide mentions that boxes with confidence scores ≤ 0.6 are typically discarded during the NMS process.
