@@ -60,9 +60,7 @@ app.get("/quiz/:module/:test", (req, res) => {
       
       if (isShortAnswer) {
         // Extract short answer question and model answer
-        // mad dog fix --> new: allow Q#, Q1, Q2, etc.
-        const questionMatch = section.match(/\*\*Q\d*:\s(.+?)\*\*/);
-
+        const questionMatch = section.match(/\*\*Q:\s(.+?)\*\*/);
         const shortAnswerMatch = section.match(/\*\*SHORT ANSWER:\*\*\s([\s\S]+?)(?=\n\n|$)/);
         
         return {

@@ -24,7 +24,6 @@
       <% questions.forEach((question, index) => { %>
       <div class="question-container" data-question-index="<%= index %>">
         <h3>Question <%= question.number %>: <%= question.question %></h3>  
-        <!-- now the number of the question will be displayed as an output tag -->
 
         <% if (question.type === "multiple") { %>
         <!-- Multiple choice question -->
