@@ -19,7 +19,7 @@
     </nav>
   </header>
   <main class="container">
-    <h1>Quiz</h1>
+    <h1><%= quizName %></h1> 
     <form id="quiz-form">
       <% questions.forEach((question, index) => { %>
       <div class="question-container" data-question-index="<%= index %>">
