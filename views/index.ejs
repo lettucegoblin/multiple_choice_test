@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="color-scheme" content="dark">
     <title>Quiz Modules</title>
-    <link rel="stylesheet" href="/style.css" />
+    <link rel="stylesheet" href="style.css" />
     <link
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css"
@@ -22,7 +22,7 @@
         <ul>
           <% modules[module].forEach(test => { %>
           <li>
-            <a href="/quiz/<%= module %>/<%= test %>"><%= test %></a>
+            <a href="quiz/<%= module %>/<%= test %>"><%= test %></a>
           </li>
           <% }) %>
         </ul>
