@@ -16,6 +16,13 @@ function checkAnswer(input, questionIndex) {
   }
 }
 
+// Base URL for apps hosted under a subpath (set by the server in quiz.ejs)
+const BASE_URL = (window.BASE_URL || '').replace(/\/+$/g, '');
+function withBaseUrl(pathname) {
+  if (!pathname.startsWith('/')) return `${BASE_URL}/${pathname}`;
+  return `${BASE_URL}${pathname}`;
+}
+
 // Set up the marked.js renderer with security options
 marked.setOptions({
   renderer: new marked.Renderer(),
@@ -133,7 +140,7 @@ async function explainConcept(questionNumber, questionIndex, questionType) {
   
   try {
     // Create event source for streaming
-    const eventSource = new EventSource('/explain-concept-stream?' + new URLSearchParams({
+    const eventSource = new EventSource(withBaseUrl('/explain-concept-stream') + '?' + new URLSearchParams({
       question: question,
       options: JSON.stringify(questionType === 'multiple' ? getOptionsForQuestion(questionIndex) : [])
     }));
@@ -233,7 +240,7 @@ async function explainSuccinct(questionNumber, questionIndex, questionType) {
   
   try {
     // Create event source for streaming
-    const eventSource = new EventSource('/explain-succinct-stream?' + new URLSearchParams({
+    const eventSource = new EventSource(withBaseUrl('/explain-succinct-stream') + '?' + new URLSearchParams({
       question: question,
       options: JSON.stringify(questionType === 'multiple' ? getOptionsForQuestion(questionIndex) : [])
     }));
@@ -325,7 +332,7 @@ async function evaluateShortAnswer(questionNumber, questionIndex) {
   
   try {
     // Create event source for streaming
-    const eventSource = new EventSource('/evaluate-answer-stream?' + new URLSearchParams({
+    const eventSource = new EventSource(withBaseUrl('/evaluate-answer-stream') + '?' + new URLSearchParams({
       question: question,
       modelAnswer: modelAnswer,
       userAnswer: userAnswer

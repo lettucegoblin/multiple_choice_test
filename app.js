@@ -9,14 +9,48 @@ require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+function normalizeBaseUrl(input) {
+  if (!input) return '/';
+  let value = String(input).trim();
+  if (!value) return '/';
+
+  // Allow full URLs (e.g. https://example.com/students/me/app/)
+  if (/^https?:\/\//i.test(value)) {
+    try {
+      value = new URL(value).pathname;
+    } catch {
+      // Fall back to treating it as a path
+    }
+  }
+
+  value = value.replace(/\\/g, '/');
+  if (!value.startsWith('/')) value = `/${value}`;
+  value = value.replace(/\/+$/g, '');
+  return value === '' ? '/' : value;
+}
+
+const BASE_URL_PATH = normalizeBaseUrl(process.env.BASE_URL);
+const MOUNT_PATH = BASE_URL_PATH === '/' ? '/' : BASE_URL_PATH;
+const TEMPLATE_BASE_URL = BASE_URL_PATH === '/' ? '' : BASE_URL_PATH;
+
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
-app.use(express.static(path.join(__dirname, "public")));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Make baseUrl available to every template.
+app.use((req, res, next) => {
+  res.locals.baseUrl = TEMPLATE_BASE_URL;
+  next();
+});
+
+// Serve static assets under the base path (e.g. /students/.../multiplechoice/style.css)
+app.use(MOUNT_PATH, express.static(path.join(__dirname, "public")));
+
+const router = express.Router();
+
 // Homepage route to list all modules and tests
-app.get("/", (req, res) => {
+router.get("/", (req, res) => {
   const testsDir = path.join(__dirname, "tests");
   const modules = {};
 
@@ -43,7 +77,7 @@ app.get("/", (req, res) => {
   });
 });
 
-app.get("/quiz/:module/:test", (req, res) => {
+router.get("/quiz/:module/:test", (req, res) => {
   const { module, test } = req.params;
   const filePath = path.join(__dirname, "tests", module, `${test}.md`);
 
@@ -115,7 +149,7 @@ app.get("/quiz/:module/:test", (req, res) => {
 });
 
 // Endpoint to handle short answer submission and evaluation
-app.post("/evaluate-answer", async (req, res) => {
+router.post("/evaluate-answer", async (req, res) => {
   try {
     const { question, modelAnswer, userAnswer } = req.body;
     
@@ -155,7 +189,7 @@ app.post("/evaluate-answer", async (req, res) => {
   }
 });
 // Endpoint to explain the concept with streaming support
-app.post("/explain-concept", async (req, res) => {
+router.post("/explain-concept", async (req, res) => {
   try {
     const { question, options } = req.body;
     
@@ -251,7 +285,7 @@ app.post("/explain-concept", async (req, res) => {
   }
 });
 
-app.get('/explain-concept-stream', async (req, res) => {
+router.get('/explain-concept-stream', async (req, res) => {
   try {
     const { question, options } = req.query;
     let parsedOptions = [];
@@ -364,7 +398,7 @@ app.get('/explain-concept-stream', async (req, res) => {
 });
 
 // Add this route to your app.js for streaming answer evaluation
-app.get('/evaluate-answer-stream', async (req, res) => {
+router.get('/evaluate-answer-stream', async (req, res) => {
   try {
     const { question, modelAnswer, userAnswer } = req.query;
     
@@ -454,7 +488,7 @@ app.get('/evaluate-answer-stream', async (req, res) => {
 });
 
 // Add this route to your app.js for succinct explanations
-app.get('/explain-succinct-stream', async (req, res) => {
+router.get('/explain-succinct-stream', async (req, res) => {
   try {
     const { question, options } = req.query;
     let parsedOptions = [];
@@ -565,6 +599,9 @@ app.get('/explain-succinct-stream', async (req, res) => {
     res.end();
   }
 });
+
+// Mount all routes under BASE_URL.
+app.use(MOUNT_PATH, router);
 
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
